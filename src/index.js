@@ -1,17 +1,28 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import { ConfigProvider, theme } from "antd";
+import App from "./App";
+import { UserProvider } from './UserContext';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+const { defaultAlgorithm } = theme;
+
+// Definimos los colores corporativos
+const customTheme = {
+  algorithm: defaultAlgorithm,
+  token: {
+    colorPrimary: "#f500a2", // Fucsia
+    colorSecondary: "#800080", // Lila
+    colorBgBase: "#ffffff", // Blanco para fondos
+    colorTextBase: "#000000", // Texto en negro para contraste
+    colorTextLightSolid: "#ffffff", // Texto claro sobre botones
+  },
+};
+
+ReactDOM.render(
+  <ConfigProvider theme={customTheme}>
+       <UserProvider>
+      <App />
+    </UserProvider>
+  </ConfigProvider>,
+  document.getElementById("root")
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
