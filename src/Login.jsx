@@ -17,10 +17,10 @@ const Login = () => {
   const [users, setUsers] = useState([]);
   const [selectedReplacement, setSelectedReplacement] = useState(null);
   const navigate = useNavigate();
-  const { setUserData, userData } = useUser();  // Acceder al contexto para actualizar los datos del usuario
+  const { setUserData } = useUser();  // Acceder al contexto para actualizar los datos del usuario
 
   useEffect(() => {
-    // Obtener la lista de usuarios para el reemplazo de turno (esto puede ir en tu API)
+    // Obtener la lista de usuarios para el reemplazo de turno
     const fetchUsers = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/usuarios`);
@@ -34,10 +34,21 @@ const Login = () => {
     fetchUsers();
   }, []);
 
+  // Función para formatear la fecha en 'YYYY-MM-DD HH:MM:SS' en hora local de Bolivia
+  const formatDateBolivia = (date) => {
+    const pad = (n) => (n < 10 ? "0" + n : n);
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      console.log(values);
       const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email: values.email,
         password: values.password,
@@ -70,13 +81,13 @@ const Login = () => {
     }
   };
 
-  // Función para registrar el ingreso de la asistencia (con reemplazo)
   const registrarIngreso = async (usuario) => {
-    const fechaHoraActual = new Date().toISOString(); // Hora actual en formato ISO
+    const fechaHoraActual = new Date();
+    const fechaFormateada = formatDateBolivia(fechaHoraActual); // Formateo en hora local de Bolivia
 
     const data = {
       id_usuario: usuario.id,
-      ingreso: fechaHoraActual,
+      ingreso: fechaFormateada,  // Fecha correctamente formateada
       reemplazo_id: selectedReplacement ? selectedReplacement.id : null, // Si hay reemplazo, se envía el id de reemplazo
     };
 
@@ -84,6 +95,7 @@ const Login = () => {
       await axios.post(`${API_BASE_URL}/asistencias/crear`, data);
     } catch (error) {
       console.error("Error al registrar el ingreso:", error);
+      message.error("Error al registrar el ingreso.");
     }
   };
 

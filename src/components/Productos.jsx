@@ -1,3 +1,5 @@
+// src/Productos.jsx
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   Table,
@@ -50,6 +52,7 @@ const Productos = () => {
   const [barcodeImage, setBarcodeImage] = useState("");
   const [newCategoria, setNewCategoria] = useState(""); // Estado para nueva categoría
   const [saving, setSaving] = useState(false); // Estado para el loader al guardar
+  const barcodeInputRef = useRef(null); // Referencia para el campo de código de barras
 
   // Función para obtener productos
   const fetchProductos = async () => {
@@ -199,6 +202,13 @@ const Productos = () => {
     setIsModalVisible(true);
   };
 
+  // useEffect para enfocar el campo de código de barras cuando el modal se abre
+  useEffect(() => {
+    if (isModalVisible && barcodeInputRef.current) {
+      barcodeInputRef.current.focus();
+    }
+  }, [isModalVisible]);
+
   // Función para manejar la cancelación del modal
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -220,7 +230,7 @@ const Productos = () => {
     formData.append("precio_venta", values.precio_venta);
     formData.append("stock", values.stock);
     formData.append("proveedor_id", values.proveedor_id); // Cambiado a proveedor_id
-    formData.append("codigo_barras", values.codigo_barras);
+    formData.append("codigo_barras", values.codigo_barras.toUpperCase()); // Asegurar mayúsculas
     formData.append("fecha_caducidad", values.fecha_caducidad);
     formData.append("categoria_id", values.categoria_id);
     formData.append("id_sucursal", values.id_sucursal); // Cambiado a id_sucursal
@@ -281,7 +291,7 @@ const Productos = () => {
 
   // Función para manejar cambios en el código de barras
   const handleBarcodeChange = (e) => {
-    const barcodeValue = e.target.value;
+    const barcodeValue = e.target.value.toUpperCase(); // Convertir a mayúsculas
     setCodigoGenerado(barcodeValue);
     if (barcodeValue) {
       generateBarcode(barcodeValue)
@@ -584,6 +594,7 @@ const Productos = () => {
                 rules={[{ required: true, message: "Por favor ingresa el código de barras" }]}
               >
                 <Input
+                  ref={barcodeInputRef} // Asignar la referencia aquí
                   value={codigoGenerado}
                   onChange={handleBarcodeChange}
                   prefix={<BarcodeOutlined />}

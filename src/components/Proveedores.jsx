@@ -119,7 +119,7 @@ const Proveedores = () => {
       key: "contacto",
     },
     {
-      title: "Correo Electrónico",
+      title: "Direccion",
       dataIndex: "email",
       key: "email",
     },
@@ -193,11 +193,11 @@ const Proveedores = () => {
             <Input placeholder="Número de teléfono o contacto" />
           </Form.Item>
           <Form.Item
-            label="Correo Electrónico"
+            label="Direccion "
             name="email"
             rules={[
-              { required: true, message: "Por favor ingrese el correo electrónico" },
-              { type: "email", message: "Ingrese un correo válido" },
+              { required: true, message: "Por favor ingrese la direccion" }
+             
             ]}
           >
             <Input placeholder="Correo electrónico" />

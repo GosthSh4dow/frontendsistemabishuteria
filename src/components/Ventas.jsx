@@ -1,4 +1,5 @@
 // src/components/Ventas.jsx
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
@@ -109,7 +110,8 @@ const Ventas = () => {
   }, []);
 
   const buscarProducto = async (codigo) => {
-    const producto = productos.find((prod) => prod.codigo_barras === codigo);
+    const codigoUpper = codigo.toUpperCase(); // Convertir a mayúsculas
+    const producto = productos.find((prod) => prod.codigo_barras === codigoUpper);
     if (producto) {
       const carritoActualizado = [...carrito];
       const productoExistente = carritoActualizado.find((item) => item.id === producto.id);
@@ -134,7 +136,7 @@ const Ventas = () => {
         description: `${producto.nombre} ha sido agregado.`,
       });
     } else {
-      message.error("Producto no encontrado.");
+     // message.error("Producto no encontrado.");
     }
   };
 
@@ -147,15 +149,15 @@ const Ventas = () => {
     return carrito.reduce((total, producto) => {
       const precioFinal = calcularPrecioFinal(producto);
       const qty = producto.cantidad || 0;
-      const totalProducto = tiene2x1(producto) ?
-        precioFinal * Math.ceil(qty / 2) :
-        precioFinal * qty;
+      const totalProducto = tiene2x1(producto)
+        ? precioFinal * Math.ceil(qty / 2)
+        : precioFinal * qty;
       return total + totalProducto;
     }, 0);
   };
 
   const handleBarcodeChange = (e) => {
-    const codigo = e.target.value;
+    const codigo = e.target.value.toUpperCase(); // Convertir a mayúsculas
     setCodigoBarras(codigo);
     if (codigo.length >= 2) {
       buscarProducto(codigo);
@@ -226,9 +228,9 @@ const Ventas = () => {
       detalles: carrito.map((item) => {
         const precioFinal = calcularPrecioFinal(item);
         const qty = item.cantidad || 0;
-        const subtotal = tiene2x1(item) ?
-          precioFinal * Math.ceil(qty / 2) :
-          precioFinal * qty;
+        const subtotal = tiene2x1(item)
+          ? precioFinal * Math.ceil(qty / 2)
+          : precioFinal * qty;
 
         return {
           producto_id: item.id,
@@ -255,7 +257,7 @@ const Ventas = () => {
 
         const response = await axios.post(`${API_BASE_URL}/clientes`, {
           nombre_completo,
-          ci,
+          ci: ci.toUpperCase(), // Convertir a mayúsculas
         });
         ventaDataTemp.id_cliente = response.data.id_cliente;
       }
@@ -265,14 +267,14 @@ const Ventas = () => {
 
       setCliente(responseVenta.data.cliente || null);
 
-// Agregar las siguientes líneas:
-if (!noReceipt && !responseVenta.data.cliente) {
-  // Si no hay cliente devuelto por el backend, usar el ingresado en el formulario
-  setCliente({
-    nombre_completo: formCliente.getFieldValue('nombre_completo') || 'Sin Nombre',
-    ci: formCliente.getFieldValue('ci') || '0'
-  });
-}
+      // Agregar las siguientes líneas:
+      if (!noReceipt && !responseVenta.data.cliente) {
+        // Si no hay cliente devuelto por el backend, usar el ingresado en el formulario
+        setCliente({
+          nombre_completo: formCliente.getFieldValue('nombre_completo') || 'Sin Nombre',
+          ci: formCliente.getFieldValue('ci') || '0'
+        });
+      }
       setVentaData({
         fecha: responseVenta.data.fecha,
         vendedor: responseVenta.data.vendedor,
@@ -295,7 +297,7 @@ if (!noReceipt && !responseVenta.data.cliente) {
         if (error.response.data.error === "El CI ya está registrado.") {
           try {
             const existingClienteResponse = await axios.get(
-              `${API_BASE_URL}/clientes?ci=${formCliente.getFieldValue("ci")}`
+              `${API_BASE_URL}/clientes?ci=${formCliente.getFieldValue("ci").toUpperCase()}`
             );
             if (existingClienteResponse.data && Object.keys(existingClienteResponse.data).length > 0) {
               ventaDataTemp.id_cliente = existingClienteResponse.data.id_cliente;
@@ -304,7 +306,6 @@ if (!noReceipt && !responseVenta.data.cliente) {
 
               setCliente(responseVenta.data.cliente || null);
               if (!noReceipt && !responseVenta.data.cliente) {
-              
                 setCliente({
                   nombre_completo: formCliente.getFieldValue('nombre_completo') || 'Sin Nombre',
                   ci: formCliente.getFieldValue('ci') || '0'
@@ -406,9 +407,9 @@ if (!noReceipt && !responseVenta.data.cliente) {
     const qty = record.cantidad || 0;
     const es2x1 = tiene2x1(record);
 
-    const total = es2x1 ?
-      precioFinal * Math.ceil(qty / 2) :
-      precioFinal * qty;
+    const total = es2x1
+      ? precioFinal * Math.ceil(qty / 2)
+      : precioFinal * qty;
 
     return `Bs. ${total.toFixed(2)}`;
   };
@@ -505,7 +506,7 @@ if (!noReceipt && !responseVenta.data.cliente) {
             value={codigoBarras}
             onChange={handleBarcodeChange}
             allowClear
-            ref={barcodeInputRef}
+            ref={barcodeInputRef} // Asignar la referencia
             style={{ width: "100%" }}
           />
         </Col>
@@ -517,7 +518,7 @@ if (!noReceipt && !responseVenta.data.cliente) {
             disabled={carrito.length === 0}
             onClick={handleFinalizarVenta}
           >
-            Finalizar Compra
+            Finalizar Venta
           </Button>
         </Col>
       </Row>

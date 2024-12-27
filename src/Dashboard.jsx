@@ -1,3 +1,5 @@
+// src/Dashboard.jsx
+
 import React, { useState, useEffect } from "react";
 import { Layout, Menu, Avatar, Typography, Button, Modal, message } from "antd";
 import {
@@ -88,7 +90,17 @@ const Dashboard = () => {
     setSelectedMenu(key);
   };
 
- 
+  const formatDateBolivia = (date) => {
+    const pad = (n) => (n < 10 ? "0" + n : n);
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const handleLogout = async () => {
     confirm({
       title: "¿Estás seguro de que deseas cerrar sesión?",
@@ -99,29 +111,36 @@ const Dashboard = () => {
       cancelText: "Cancelar",
       onOk: async () => {
         try {
-          const horaSalida = new Date().toISOString(); 
-          if (horaSalida) {
-            await axios.post(`${API_BASE_URL}/asistencias/salida`, {
+          // Obtener la fecha y hora actual en hora local de Bolivia
+          const fechaHoraActual = new Date();
+          const fechaFormateada = formatDateBolivia(fechaHoraActual);
+          
+          // Enviar la solicitud para registrar la salida
+          await axios.post(
+            `${API_BASE_URL}/asistencias/salida`,
+            {
               id_usuario: user.id,
-              salida: horaSalida,
-            }, {
+              salida: fechaFormateada,
+            },
+            {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            });
-          }
+            }
+          );
+
+          // Limpiar los datos del usuario y redirigir al inicio
           clearUserData();
           window.location.href = "/";
         } catch (error) {
           console.error("Error al registrar la salida:", error);
-        //  message.error("Error al registrar la salida.");
+          // Aun si falla el registro de salida, limpiar los datos y redirigir
           clearUserData();
           window.location.href = "/";
         }
       },
     });
   };
-
 
   const renderContent = () => {
     // Si la clave del menú es una caja de sucursal
@@ -176,9 +195,9 @@ const Dashboard = () => {
       <Menu.Item key="ventas" icon={<ShoppingCartOutlined />}>
         Ventas
       </Menu.Item>,
-    <Menu.Item key="reportes" icon={<FilePdfOutlined />}>
-    Reportes
-  </Menu.Item>
+      <Menu.Item key="reportes" icon={<FilePdfOutlined />}>
+        Reportes
+      </Menu.Item>
     );
 
     // Menú para administrador
@@ -205,10 +224,9 @@ const Dashboard = () => {
             Proveedores
           </Menu.Item>
         </Menu.SubMenu>,
-          <Menu.Item key="sueldos" icon={<BarChartOutlined />}>
+        <Menu.Item key="sueldos" icon={<BarChartOutlined />}>
           Sueldos
         </Menu.Item>
-        
       );
     }
 
